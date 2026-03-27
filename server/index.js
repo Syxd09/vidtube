@@ -14,6 +14,30 @@ const googleClient = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
 app.use(cors());
 app.use(express.json());
 
+// Health Check Endpoint for Diagnostics
+app.get('/api/health', async (req, res) => {
+  const diagnostics = {
+    status: 'online',
+    timestamp: new Date().toISOString(),
+    env: {
+      NODE_ENV: process.env.NODE_ENV,
+      DB_CONFIGURED: !!process.env.DATABASE_URL,
+      GOOGLE_AUTH_CONFIGURED: !!process.env.GOOGLE_CLIENT_ID,
+      JWT_CONFIGURED: !!process.env.JWT_SECRET,
+    }
+  };
+  
+  try {
+    const dbTest = await db.query('SELECT NOW()');
+    diagnostics.database = { status: 'connected', time: dbTest.rows[0].now };
+    res.json(diagnostics);
+  } catch (err) {
+    diagnostics.database = { status: 'error', message: err.message };
+    console.error('🔥 [HEALTH CHECK ERROR]:', err.message);
+    res.status(500).json(diagnostics);
+  }
+});
+
 // Database initialization
 async function initDB() {
   console.log('--- Initializing Database ---');
@@ -67,7 +91,8 @@ async function initDB() {
   }
 }
 
-initDB();
+// initDB is now handled only in local dev mode or via setup-db.js
+// initDB();
 
 // --- Authentication Routes ---
 
@@ -90,7 +115,11 @@ app.post('/api/auth/signup', async (req, res) => {
     if (err.code === '23505') {
        return res.status(400).json({ error: 'Email already exists' });
     }
-    res.status(500).json({ error: 'Internal Server Error (Signup)' });
+    console.error('🔥 [AUTH ERROR] Signup Failed:', err.message);
+    res.status(500).json({ 
+      error: 'Internal Server Error (Signup)', 
+      details: process.env.NODE_ENV === 'production' ? 'Consult server logs' : err.message 
+    });
   }
 });
 
@@ -153,7 +182,12 @@ app.post('/api/auth/google', async (req, res) => {
     res.json({ user: { id: user.id, name: user.name, email: user.email, picture }, token });
   } catch (err) {
     console.error('🔥 [AUTH ERROR] Google Verification Failed:', err.message);
-    res.status(401).json({ error: 'Google authentication failed' });
+    console.error('Environment check - GOOGLE_CLIENT_ID present:', !!process.env.GOOGLE_CLIENT_ID);
+    res.status(401).json({ 
+      error: 'Google authentication failed', 
+      details: err.message,
+      tip: !process.env.GOOGLE_CLIENT_ID ? 'GOOGLE_CLIENT_ID is missing in environment' : 'Check Google OAuth Client ID and Origins'
+    });
   }
 });
 
@@ -208,10 +242,14 @@ app.delete('/api/summaries/:id', async (req, res) => {
   }
 });
 
+// Only auto-initialize in development
 if (process.env.NODE_ENV !== 'production' && !process.env.VERCEL) {
+  initDB();
+  
   app.listen(PORT, '0.0.0.0', () => {
     console.log(`--- Workspace Intelligence Engine active on port ${PORT} ---`);
   });
 }
 
+// Export for Vercel
 module.exports = app;
