@@ -118,7 +118,8 @@ app.post('/api/auth/signup', async (req, res) => {
     console.error('🔥 [AUTH ERROR] Signup Failed:', err.message);
     res.status(500).json({ 
       error: 'Internal Server Error (Signup)', 
-      details: process.env.NODE_ENV === 'production' ? 'Consult server logs' : err.message 
+      details: err.message,
+      fix: !process.env.DATABASE_URL ? 'URGENT: DATABASE_URL is missing in Vercel Environment Variables.' : 'Ensure you have run `npm run setup-db` to create your tables.'
     });
   }
 });
@@ -181,12 +182,16 @@ app.post('/api/auth/google', async (req, res) => {
     const token = jwt.sign({ id: user.id, email: user.email }, JWT_SECRET, { expiresIn: '7d' });
     res.json({ user: { id: user.id, name: user.name, email: user.email, picture }, token });
   } catch (err) {
+    const isProd = process.env.NODE_ENV === 'production' || process.env.VERCEL;
     console.error('🔥 [AUTH ERROR] Google Verification Failed:', err.message);
-    console.error('Environment check - GOOGLE_CLIENT_ID present:', !!process.env.GOOGLE_CLIENT_ID);
     res.status(401).json({ 
       error: 'Google authentication failed', 
       details: err.message,
-      tip: !process.env.GOOGLE_CLIENT_ID ? 'GOOGLE_CLIENT_ID is missing in environment' : 'Check Google OAuth Client ID and Origins'
+      env_check: {
+        GOOGLE_CLIENT_ID_PRESENT: !!process.env.GOOGLE_CLIENT_ID,
+        NODE_ENV: process.env.NODE_ENV
+      },
+      tip: !process.env.GOOGLE_CLIENT_ID ? 'You MUST add GOOGLE_CLIENT_ID to your Vercel Environment Variables.' : 'Check Google OAuth Authorized Origins.'
     });
   }
 });
