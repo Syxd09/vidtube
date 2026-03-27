@@ -30,23 +30,23 @@ export function TranscriptViewer({ transcript, videoId }: TranscriptViewerProps)
 
   return (
     <ScrollReveal delay={0.2}>
-      <Card className="border-border/40 shadow-lg shadow-black/5 hover:shadow-xl transition-shadow duration-500 overflow-hidden relative">
+      <Card className="glass-strong overflow-hidden relative hover:shadow-xl transition-all duration-500">
         <div className="absolute top-0 left-0 w-1 h-full bg-gradient-to-b from-primary/60 to-transparent rounded-l-lg" />
-        <div className="p-5 border-b border-border/40">
+        <div className="p-5 border-b border-border/30">
           <div className="flex items-center gap-2 mb-4">
-            <div className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center">
+            <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-primary/20 to-primary/5 flex items-center justify-center">
               <Clock className="w-4 h-4 text-primary" />
             </div>
             <h3 className="text-lg font-semibold text-foreground">Transcript</h3>
-            <span className="text-sm text-muted-foreground ml-auto tabular-nums">{transcript.length} segments</span>
+            <span className="text-sm text-muted-foreground ml-auto tabular-nums font-mono">{transcript.length} segments</span>
           </div>
-          <div className="relative">
-            <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+          <div className="relative group">
+            <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground group-focus-within:text-primary transition-colors duration-200" />
             <Input
               placeholder="Search transcript..."
               value={search}
               onChange={e => setSearch(e.target.value)}
-              className="pl-10 bg-surface-elevated border-border/40 focus-visible:ring-primary/30"
+              className="pl-10 bg-muted/30 border-border/30 focus-visible:ring-primary/30 rounded-xl"
             />
           </div>
         </div>
@@ -90,7 +90,7 @@ function highlightMatch(text: string, query: string) {
   return (
     <>
       {text.slice(0, idx)}
-      <mark className="bg-accent/25 text-foreground rounded px-0.5">{text.slice(idx, idx + query.length)}</mark>
+      <mark className="bg-primary/20 text-foreground rounded px-0.5">{text.slice(idx, idx + query.length)}</mark>
       {text.slice(idx + query.length)}
     </>
   );

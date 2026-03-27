@@ -13,7 +13,8 @@ export function extractVideoId(url: string): string | null {
 }
 
 export function getYoutubeThumbnail(videoId: string): string {
-  return `https://img.youtube.com/vi/${videoId}/maxresdefault.jpg`;
+  // Using hqdefault as it's more reliable than maxresdefault for all videos
+  return `https://i.ytimg.com/vi/${videoId}/hqdefault.jpg`;
 }
 
 export interface TranscriptEntry {
@@ -23,13 +24,19 @@ export interface TranscriptEntry {
 }
 
 export interface SummaryData {
-  id: string;
-  videoId: string;
+  id: string; // Database ID or local unique ID
+  video_id: string;
   title: string;
+  author_name: string;
   thumbnail: string;
   summary: string;
-  keyPoints: string[];
+  overview?: string;
+  key_points: string[];
   transcript: TranscriptEntry[];
-  createdAt: string;
   tags: string[];
+  views?: string;
+  publish_date?: string;
+  comment_count?: string;
+  sentiment?: string; // AI-deduced community sentiment
+  created_at?: string;
 }

@@ -22,3 +22,16 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+
+# Sensitive Environment Variables
+.env
+.env.local
+.env.development
+.env.production
+server/.env
+server/.env.local
+
+# AI Storage
+.agents
+.brain
+/tmp
