@@ -5,7 +5,8 @@ import { Mail, Lock, User as UserIcon, ArrowRight } from 'lucide-react';
 import { useAuth } from '@/lib/AuthContext';
 import { toast } from 'sonner';
 import { auth, googleProvider } from '@/lib/firebase';
-import { signInWithPopup } from 'firebase/auth';
+import { signInWithPopup, getRedirectResult } from 'firebase/auth';
+import { useEffect } from 'react';
 
 const API_BASE_URL = '/api';
 
@@ -17,14 +18,32 @@ export const AuthForm = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
 
+  // Handle redirect result when user comes back
+  useEffect(() => {
+    getRedirectResult(auth).then(async (result) => {
+      if (result) {
+        const idToken = await result.user.getIdToken();
+        const res = await fetch(`${API_BASE_URL}/auth/google`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ credential: idToken }),
+        });
+        const data = await res.json();
+        if (res.ok) {
+          signIn(data.user, data.token);
+          toast.success('Signed in with Google!');
+        }
+      }
+    }).catch(() => {});
+  }, []);
+
   const handleGoogleLogin = async () => {
     setIsLoading(true);
     try {
-      // Firebase handles the popup and token generation
+      // Try popup first (works on most desktop browsers)
       const result = await signInWithPopup(auth, googleProvider);
       const idToken = await result.user.getIdToken();
 
-      // Send the Firebase ID token to our backend for verification
       const res = await fetch(`${API_BASE_URL}/auth/google`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -37,8 +56,17 @@ export const AuthForm = () => {
       signIn(data.user, data.token);
       toast.success('Signed in with Google!');
     } catch (err: any) {
-      if (err.code === 'auth/popup-closed-by-user') {
-        toast.error('Sign-in cancelled');
+      // If popup is blocked by COOP, fall back to redirect
+      if (err.code === 'auth/popup-blocked' || err.code === 'auth/popup-closed-by-user') {
+        try {
+          const { signInWithRedirect } = await import('firebase/auth');
+          await signInWithRedirect(auth, googleProvider);
+          return; // Page will redirect, no need to continue
+        } catch {
+          toast.error('Sign-in failed. Please try again.');
+        }
+      } else if (err.code === 'auth/cancelled-popup-request') {
+        // User clicked multiple times, ignore
       } else {
         toast.error(err.message || 'Google login failed');
       }
