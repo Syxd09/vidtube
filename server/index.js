@@ -184,14 +184,22 @@ app.post('/api/auth/google', async (req, res) => {
   } catch (err) {
     const isProd = process.env.NODE_ENV === 'production' || process.env.VERCEL;
     console.error('🔥 [AUTH ERROR] Google Verification Failed:', err.message);
+    
+    // Diagnostic info for identifying mismatches
+    const expectedId = process.env.GOOGLE_CLIENT_ID || 'MISSING';
+    const maskedExpected = expectedId.length > 10 ? `...${expectedId.slice(-10)}` : expectedId;
+
     res.status(401).json({ 
       error: 'Google authentication failed', 
       details: err.message,
-      env_check: {
-        GOOGLE_CLIENT_ID_PRESENT: !!process.env.GOOGLE_CLIENT_ID,
-        NODE_ENV: process.env.NODE_ENV
+      diagnostic: {
+        expected_client_id_end: maskedExpected,
+        node_env: process.env.NODE_ENV,
+        vercel_env: !!process.env.VERCEL
       },
-      tip: !process.env.GOOGLE_CLIENT_ID ? 'You MUST add GOOGLE_CLIENT_ID to your Vercel Environment Variables.' : 'Check Google OAuth Authorized Origins.'
+      tip: err.message.includes('audience') 
+        ? `CLIENT ID MISMATCH: Your site is sending a token with a different ID than the server expects (${maskedExpected}). Update BOTH VITE_GOOGLE_CLIENT_ID and GOOGLE_CLIENT_ID in Vercel.`
+        : 'Ensure you have added the Vercel URL to Authorized JavaScript Origins in Google Cloud Console.'
     });
   }
 });
