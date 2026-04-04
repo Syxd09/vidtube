@@ -74,7 +74,7 @@ export function AppSidebar({
   ];
 
   return (
-    <div className="w-[260px] flex flex-col h-full bg-[#030303] border-r border-white/5 p-4 py-8">
+    <div className="w-[260px] flex flex-col h-full bg-[#030303] border-r border-white/5 p-4 py-8 min-h-0 overflow-hidden">
       {/* Logo Area */}
       <div className="flex items-center gap-3 px-4 mb-10 group cursor-pointer" onClick={onHome}>
         <div className="w-10 h-10 rounded-2xl bg-white/5 border border-white/10 flex items-center justify-center shadow-2xl group-hover:border-primary/50 transition-all duration-500">
@@ -152,7 +152,7 @@ export function AppSidebar({
       </div>
 
       {/* Bottom Actions */}
-      <div className="mt-auto pt-6 border-t border-white/5 space-y-4">
+      <div className="mt-auto pt-6 border-t border-white/5 space-y-4 shrink-0 bg-[#030303] z-10">
         <nav className="space-y-1">
           <button 
             onClick={onSettings}

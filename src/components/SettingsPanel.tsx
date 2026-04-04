@@ -1,10 +1,12 @@
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Settings, Shield, Eye, Bell, Cpu, Palette, Zap, Globe, Key, Database, Cpu as CpuIcon } from 'lucide-react';
+import { Settings, Shield, Eye, Bell, Cpu, Palette, Zap, Globe, Key, Database, Cpu as CpuIcon, User, LogOut } from 'lucide-react';
 import { toast } from 'sonner';
+import { useAuth } from '@/lib/AuthContext';
 
 export default function SettingsPanel() {
-  const [activeSubTab, setActiveSubTab] = useState<'visual' | 'security' | 'uplink'>('visual');
+  const { user, signOut } = useAuth();
+  const [activeSubTab, setActiveSubTab] = useState<'visual' | 'security' | 'uplink' | 'profile'>('visual');
   const [pulseIntensity, setPulseIntensity] = useState(50);
   const [glassStyle, setGlassStyle] = useState('obsidian');
 
@@ -42,7 +44,8 @@ export default function SettingsPanel() {
           {[
             { id: 'visual', label: 'Visual Interface', icon: Palette },
             { id: 'security', label: 'Security', icon: Shield },
-            { id: 'uplink', label: 'Neural Uplink', icon: Globe }
+            { id: 'uplink', label: 'Neural Uplink', icon: Globe },
+            { id: 'profile', label: 'Neural Profile', icon: User }
           ].map(tab => (
             <button
               key={tab.id}
@@ -185,6 +188,60 @@ export default function SettingsPanel() {
                             Synchronize Mission Credentials
                          </button>
                       </div>
+                   </div>
+                </div>
+              </motion.div>
+            )}
+
+            {activeSubTab === 'profile' && (
+              <motion.div 
+                key="profile"
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: 20 }}
+                className="space-y-10"
+              >
+                <div className="p-10 rounded-[3.5rem] bg-white/[0.03] border border-white/5 relative overflow-hidden">
+                   <div className="absolute top-0 right-0 p-8 opacity-[0.03]">
+                      <User className="w-48 h-48 text-primary" />
+                   </div>
+                   <div className="relative z-10 space-y-8">
+                     <div className="flex items-center gap-6">
+                       <div className="w-20 h-20 rounded-3xl bg-primary/20 border border-primary/40 flex items-center justify-center shadow-inner">
+                         <User className="w-10 h-10 text-primary" />
+                       </div>
+                       <div>
+                         <h3 className="text-2xl font-black text-white tracking-tight uppercase">{user?.email?.split('@')[0] || 'Unknown Subject'}</h3>
+                         <p className="text-xs font-black text-primary uppercase tracking-[0.3em]">Identity Node: {user?.id || 'CTX-99'}</p>
+                       </div>
+                     </div>
+
+                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                       <div className="p-6 rounded-2xl bg-white/[0.02] border border-white/5 space-y-2">
+                         <span className="text-[9px] font-black text-white/20 uppercase tracking-widest">Primary Email</span>
+                         <p className="text-sm font-bold text-white/80">{user?.email || 'guest@cortexos.ai'}</p>
+                       </div>
+                       <div className="p-6 rounded-2xl bg-white/[0.02] border border-white/5 space-y-2">
+                         <span className="text-[9px] font-black text-white/20 uppercase tracking-widest">Permission Level</span>
+                         <p className="text-sm font-bold text-emerald-500 uppercase tracking-widest">{user?.is_admin ? 'Directorship (Admin)' : 'Intelligence Officer'}</p>
+                       </div>
+                     </div>
+
+                     <div className="pt-6 border-t border-white/5">
+                        <button 
+                           onClick={() => {
+                             toast.promise(Promise.resolve(signOut()), {
+                               loading: 'Terminating Neural Link...',
+                               success: 'Session Purged Successfully',
+                               error: 'Termination Error'
+                             });
+                           }}
+                           className="w-full h-14 rounded-2xl bg-red-500 text-white font-black text-xs uppercase tracking-[0.3em] shadow-2xl shadow-red-500/20 hover:bg-red-600 hover:scale-[1.02] active:scale-95 transition-all flex items-center justify-center gap-3"
+                        >
+                           <LogOut className="w-4 h-4" />
+                           Terminate System Session
+                        </button>
+                     </div>
                    </div>
                 </div>
               </motion.div>

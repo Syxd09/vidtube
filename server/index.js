@@ -20,6 +20,12 @@ const JWT_SECRET = process.env.JWT_SECRET || 'your_super_secret_key_change_this_
 app.use(cors());
 app.use(express.json());
 
+// Security Headers: Resolve COOP blocks for OAuth popups
+app.use((req, res, next) => {
+  res.setHeader('Cross-Origin-Opener-Policy', 'same-origin-allow-popups');
+  next();
+});
+
 // Health Check Endpoint for Diagnostics
 app.get('/api/health', async (req, res) => {
   const diagnostics = {
