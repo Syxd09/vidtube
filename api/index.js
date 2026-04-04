@@ -9,7 +9,7 @@ require('dotenv').config();
 // Initialize Firebase Admin SDK
 if (!admin.apps.length) {
   admin.initializeApp({
-    projectId: process.env.FIREBASE_PROJECT_ID || 'cortex-os-53422',
+    projectId: process.env.FIREBASE_PROJECT_ID || 'cortex-os',
   });
 }
 

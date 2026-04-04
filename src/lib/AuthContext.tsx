@@ -27,8 +27,8 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 
   useEffect(() => {
     // Check for existing session in localStorage
-    const savedUser = localStorage.getItem('vidtube_user');
-    const savedToken = localStorage.getItem('vidtube_token');
+    const savedUser = localStorage.getItem('cortex_user');
+    const savedToken = localStorage.getItem('cortex_token');
     
     if (savedUser && savedToken) {
       try {
@@ -39,8 +39,8 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         setUser(JSON.parse(savedUser));
         setToken(savedToken);
       } catch (e) {
-        localStorage.removeItem('vidtube_user');
-        localStorage.removeItem('vidtube_token');
+        localStorage.removeItem('cortex_user');
+        localStorage.removeItem('cortex_token');
       }
     }
     setIsLoading(false);
@@ -49,15 +49,15 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const signIn = (userData: User, authToken: string) => {
     setUser(userData);
     setToken(authToken);
-    localStorage.setItem('vidtube_user', JSON.stringify(userData));
-    localStorage.setItem('vidtube_token', authToken);
+    localStorage.setItem('cortex_user', JSON.stringify(userData));
+    localStorage.setItem('cortex_token', authToken);
   };
 
   const signOut = () => {
     setUser(null);
     setToken(null);
-    localStorage.removeItem('vidtube_user');
-    localStorage.removeItem('vidtube_token');
+    localStorage.removeItem('cortex_user');
+    localStorage.removeItem('cortex_token');
   };
 
   return (
