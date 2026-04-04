@@ -3,6 +3,7 @@ const cors = require('cors');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const db = require('./db');
+const path = require('path');
 const admin = require('firebase-admin');
 require('dotenv').config();
 
@@ -452,14 +453,19 @@ app.get('/api/debug-env', (req, res) => {
   });
 });
 
-// Original initialization logic (reverted to system baseline)
-if (process.env.NODE_ENV !== 'production' && !process.env.VERCEL) {
-  initDB();
-  
+// Serve static files from the Vite build in production
+app.use(express.static(path.join(__dirname, '../dist')));
+
+// Catch-all route to serve the SPA (Frontend)
+app.get('*', (req, res) => {
+  res.sendFile(path.join(__dirname, '../dist/index.html'));
+});
+
+if (process.env.NODE_ENV !== 'test') {
   app.listen(PORT, '0.0.0.0', () => {
     console.log(`--- Workspace Intelligence Engine active on port ${PORT} ---`);
+    console.log(`--- Production Ready: Serving static assets from ../dist ---`);
   });
 }
 
-// Export for Vercel
 module.exports = app;
