@@ -196,7 +196,8 @@ app.post('/api/auth/google', async (req, res) => {
     console.error('🔥 [AUTH ERROR] Firebase Verification Failed:', err.message);
     res.status(401).json({ 
       error: 'Google authentication failed', 
-      details: err.message 
+      details: err.message,
+      stack: process.env.NODE_ENV === 'development' ? err.stack : undefined
     });
   }
 });
@@ -435,10 +436,10 @@ app.post('/api/ai/dub', async (req, res) => {
   res.status(501).json({ error: 'ElevenLabs integration in progress' });
 });
 
-// Only auto-initialize in development
+// Forced auto-initialize for production schema synchronization
+initDB();
+
 if (process.env.NODE_ENV !== 'production' && !process.env.VERCEL) {
-  initDB();
-  
   app.listen(PORT, '0.0.0.0', () => {
     console.log(`--- Workspace Intelligence Engine active on port ${PORT} ---`);
   });
