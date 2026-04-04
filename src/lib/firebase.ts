@@ -1,6 +1,8 @@
 import { initializeApp } from 'firebase/app';
 import { getAuth, GoogleAuthProvider } from 'firebase/auth';
 
+// ABSOLUTE IDENTITY CONFIGURATION (v38.5)
+// DO NOT USE ENVIRONMENT VARIABLES HERE TO PREVENT GHOST CACHING
 const firebaseConfig = {
   apiKey: "AIzaSyCgG__2WupvIE5d7e_E-_mMeXjAi39F_e8",
   authDomain: "cortex-os-53422.firebaseapp.com",
