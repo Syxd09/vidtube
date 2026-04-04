@@ -461,7 +461,7 @@ app.get('*', (req, res) => {
   res.sendFile(path.join(__dirname, '../dist/index.html'));
 });
 
-if (process.env.NODE_ENV !== 'test') {
+if (process.env.NODE_ENV !== 'test' && !process.env.VERCEL) {
   app.listen(PORT, '0.0.0.0', () => {
     console.log(`--- Workspace Intelligence Engine active on port ${PORT} ---`);
     console.log(`--- Production Ready: Serving static assets from ../dist ---`);
