@@ -436,10 +436,26 @@ app.post('/api/ai/dub', async (req, res) => {
   res.status(501).json({ error: 'ElevenLabs integration in progress' });
 });
 
-// Forced auto-initialize for production schema synchronization
-initDB();
+// Tactical Environment Diagnostic Node (Protected)
+app.get('/api/debug-env', (req, res) => {
+  const dbUrl = process.env.DATABASE_URL || '';
+  const hostMatch = dbUrl.match(/@([^:/]+)/);
+  const host = hostMatch ? hostMatch[1] : 'none';
+  
+  res.json({
+    status: 'diagnostic_active',
+    has_db_url: !!dbUrl,
+    db_url_length: dbUrl.length,
+    host_preview: host.substring(0, 5) + '...',
+    node_env: process.env.NODE_ENV,
+    is_vercel: !!process.env.VERCEL
+  });
+});
 
+// Original initialization logic (reverted to system baseline)
 if (process.env.NODE_ENV !== 'production' && !process.env.VERCEL) {
+  initDB();
+  
   app.listen(PORT, '0.0.0.0', () => {
     console.log(`--- Workspace Intelligence Engine active on port ${PORT} ---`);
   });
