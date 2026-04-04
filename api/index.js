@@ -2,14 +2,14 @@ const express = require('express');
 const cors = require('cors');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
-const db = require('../server/db');
+const db = require('./db');
 const admin = require('firebase-admin');
 require('dotenv').config();
 
 // Initialize Firebase Admin SDK
 if (!admin.apps.length) {
   admin.initializeApp({
-    projectId: process.env.FIREBASE_PROJECT_ID || 'cortex-os',
+    projectId: process.env.FIREBASE_PROJECT_ID || 'vidtube-9cf35',
   });
 }
 
