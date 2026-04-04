@@ -174,6 +174,14 @@ app.post('/api/auth/google', async (req, res) => {
     const { email, name, picture } = decodedToken;
     console.log(`[AUTH] Firebase verified identity for ${email}`);
 
+    // Intelligence Heartbeat: Ensure tables exist in the new database
+    try {
+      await db.query('SELECT id FROM users LIMIT 1');
+    } catch (e) {
+      console.log('⚠️ [SCHEMA PANIC] Tables missing. Triggering auto-provision sequence...');
+      await initDB();
+    }
+
     let result = await db.query('SELECT * FROM users WHERE email = $1', [email]);
     let user;
 
