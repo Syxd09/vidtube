@@ -198,7 +198,8 @@ app.post('/api/auth/google', async (req, res) => {
     res.status(401).json({ 
       error: 'Google authentication failed', 
       details: err.message,
-      stack: process.env.NODE_ENV === 'development' ? err.stack : undefined
+      code: err.code,
+      hint: 'Ensure FIREBASE_PROJECT_ID in Vercel matches your Firebase Console project ID.'
     });
   }
 });
