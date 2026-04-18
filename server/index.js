@@ -38,6 +38,7 @@ app.get('/api/health', async (req, res) => {
       DB_CONFIGURED: !!process.env.DATABASE_URL,
       GOOGLE_AUTH_CONFIGURED: !!process.env.GOOGLE_CLIENT_ID,
       JWT_CONFIGURED: !!process.env.JWT_SECRET,
+      FIREBASE_PROJECT_ID: process.env.FIREBASE_PROJECT_ID ? `${process.env.FIREBASE_PROJECT_ID.substring(0, 3)}...` : 'vid... (fallback)'
     }
   };
   

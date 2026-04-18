@@ -47,7 +47,10 @@ export const AuthForm = () => {
       });
 
       const data = await res.json();
-      if (!res.ok) throw new Error(data.error || 'Google login failed');
+      if (!res.ok) {
+        console.error('🔥 [SERVER_AUTH_ERROR]:', data);
+        throw new Error(data.error || 'Google login failed');
+      }
 
       signIn(data.user, data.token);
       toast.success('Signed in with Google!');
