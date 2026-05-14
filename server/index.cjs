@@ -200,7 +200,8 @@ app.post('/api/auth/google', async (req, res) => {
       error: 'Google authentication failed', 
       details: err.message,
       code: err.code,
-      hint: 'Ensure FIREBASE_PROJECT_ID in Vercel matches your Firebase Console project ID.'
+      projectId: admin.app().options.projectId,
+      hint: 'Ensure FIREBASE_PROJECT_ID in Vercel Dashboard matches your Firebase Console project ID.'
     });
   }
 });
