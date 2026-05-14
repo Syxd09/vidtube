@@ -6,8 +6,8 @@
   "scripts": {
     "dev": "vite",
     "dev:all": "concurrently \"npm run dev\" \"npm run server\"",
-    "server": "node server/index.js",
-    "start": "node server/index.js",
+    "server": "node server/index.cjs",
+    "start": "node server/index.cjs",
     "build": "vite build",
     "lint": "eslint .",
     "preview": "vite preview",
