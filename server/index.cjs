@@ -195,13 +195,23 @@ app.post('/api/auth/google', async (req, res) => {
     const token = jwt.sign({ id: user.id, email: user.email }, JWT_SECRET, { expiresIn: '7d' });
     res.json({ user: { id: user.id, name: user.name, email: user.email, picture, is_admin: user.is_admin }, token });
   } catch (err) {
-    console.error('🔥 [AUTH ERROR] Firebase Verification Failed:', err.message);
-    res.status(401).json({ 
-      error: 'Google authentication failed', 
+    if (err.message.includes('auth/') || err.message.includes('token')) {
+      console.error('🔥 [AUTH ERROR] Firebase Verification Failed:', err.message);
+      return res.status(401).json({ 
+        error: 'Google authentication failed', 
+        details: err.message,
+        code: err.code,
+        projectId: admin.app().options.projectId,
+        hint: 'Ensure FIREBASE_PROJECT_ID in Vercel Dashboard matches your Firebase Console project ID.'
+      });
+    }
+
+    console.error('🔥 [DATABASE ERROR] Auth Sync Failed:', err.message);
+    res.status(500).json({ 
+      error: 'Database synchronization failed', 
       details: err.message,
       code: err.code,
-      projectId: admin.app().options.projectId,
-      hint: 'Ensure FIREBASE_PROJECT_ID in Vercel Dashboard matches your Firebase Console project ID.'
+      hint: 'Your DATABASE_URL connection string might be invalid or expired. Check your Vercel Environment Variables.'
     });
   }
 });
